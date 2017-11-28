@@ -1,11 +1,22 @@
 import pygame as pg
 import json as js
+from pygame.locals import *
+from BossAgent import *
 
-n = 32
-m = 26
+n = 32 #32
+m = 26 #26
 
 Ancho = n*32
 Alto = m*32
+
+
+IZQUIERDA=0
+DERECHA=1
+ABAJO=2
+ARRIBA=3
+
+NEGRO=(0,0,0)
+
 
 class Colisionable(pg.sprite.Sprite):
     def __init__(self, img, x, y):
@@ -22,6 +33,39 @@ class Otros(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+class jugador(pg.sprite.Sprite):
+    velocidad=4
+    ls_block=None
+
+    def __init__(self,imagen,x,y):
+            pg.sprite.Sprite.__init__(self)
+            self.image= self.image=pg.image.load(imagen).convert_alpha()
+            self.rect=self.image.get_rect()
+            self.rect.x=x
+            self.rect.y=y
+            self.hp = 50000
+
+    def move(self,dx,dy):
+        if dx != 0:
+            self.collide(dx, 0)
+        if dy != 0:
+            self.collide(0, dy)
+    def collide(self,dx,dy):
+        self.rect.x+=dx
+        self.rect.y+=dy
+
+        ls_golpes=pg.sprite.spritecollide(self,self.ls_block,False)
+        for g in ls_golpes:
+            if dx>0:
+                self.rect.right=g.rect.left
+            if dx<0:
+                self.rect.left=g.rect.right
+            if dy>0:
+                self.rect.bottom=g.rect.top
+            if dy<0:
+                self.rect.top=g.rect.bottom
+
 
 class Mapa(object):
     def __init__(self, archivo):
@@ -64,15 +108,17 @@ class Mapa(object):
 
         self.lstiles = self.Tiles()
 
-    def Mapeo(self, Colisionables, NoColisionables):
+    def Mapeo(self, Colisionables, NoColisionables, Bloques):
         nf = 0
         for f in self.lyOtros2:
             ne = 0
             for e in f:
                 if e != 0:
-                    img = self.lstiles[e]
-                    Col = Otros(img, nf, ne)
+                    img = self.lstiles[e-1]
+
+                    Col = Otros(img, ne, nf)
                     NoColisionables.add(Col)
+                    #pantalla.blit(img,[110,110])
                 ne += 32
             nf += 32
 
@@ -82,7 +128,7 @@ class Mapa(object):
             for e in f:
                 if e != 0:
                     img = self.lstiles[e-1]
-                    Col = Otros(img, nf, ne)
+                    Col = Otros(img, ne, nf)
                     NoColisionables.add(Col)
                 ne += 32
             nf += 32
@@ -93,7 +139,7 @@ class Mapa(object):
             for e in f:
                 if e != 0:
                     img = self.lstiles[e-1]
-                    Col = Otros(img, nf, ne)
+                    Col = Otros(img, ne, nf)
                     NoColisionables.add(Col)
                 ne += 32
             nf += 32
@@ -104,8 +150,8 @@ class Mapa(object):
             for e in f:
                 if e != 0:
                     img = self.lstiles[e-1]
-                    Col = Colisionables(img, nf, ne)
-                    Colisionables.add(Col)
+                    Col = Colisionables(img, ne, nf)
+                    Bloques.add(Col)
                 ne += 32
             nf += 32
 
@@ -115,7 +161,7 @@ class Mapa(object):
             for e in f:
                 if e != 0:
                     img = self.lstiles[e-1]
-                    Col = Otros(img, nf, ne)
+                    Col = Otros(img, ne, nf)
                     NoColisionables.add(Col)
                 ne += 32
             nf += 32
@@ -126,8 +172,8 @@ class Mapa(object):
             for e in f:
                 if e != 0:
                     img = self.lstiles[e-1]
-                    Col = Colisionable(img, nf, ne)
-                    Colisionables.add(Col)
+                    Col = Colisionable(img, ne, nf)
+                    Bloques.add(Col)
                 ne += 32
             nf += 32
 
@@ -137,7 +183,7 @@ class Mapa(object):
             for e in f:
                 if e != 0:
                     img = self.lstiles[e-1]
-                    Col = Otros(img, nf, ne)
+                    Col = Otros(img, ne, nf)
                     NoColisionables.add(Col)
                 ne += 32
             nf += 32
@@ -147,25 +193,34 @@ class Mapa(object):
         l = []
         for i in self.base['tilesets']:
             arc = i['image']
-            lr = Recortar(arc, 32, 64)
+            lr = self.Recortar(arc, 32, 32)
             for t in lr:
                 l.append(t)
         return l
 
 
-    def Separar(self, lista, ancho):
-        cont = 0
-        m = []
-        linea = []
-        for i in lista:
+    def Separar(self,l, ancho):
+        con=0
+        matriz=[]
+        linea=[]
+        for i in l:
             linea.append(i)
-            cont+=1
-            if cont == ancho:
-                m.append(linea)
-                linea = []
-                cont = 0
-        return m
+            con+=1
+            if con==ancho:
+                matriz.append(linea)
+                linea=[]
+                con=0
+        return matriz
 
+    def Recortar(self,archivo, anc, alc):
+        linea=[]
+        imagen=pg.image.load(archivo).convert_alpha()
+        i_ancho, i_alto=imagen.get_size()
+        for y in range(0, i_alto/alc):
+            for x in range(0,i_ancho/anc):
+                cuadro=(x*anc, y*alc, anc, alc)
+                linea.append(imagen.subsurface(cuadro))
+        return linea
 
 def Recortar(archivo, an,al):
 	fondo = pg.image.load(archivo).convert_alpha()
@@ -186,17 +241,65 @@ def Recortar(archivo, an,al):
 
 	return m
 
+def RelRect(actor, camara):
+    return pg.Rect(actor.rect.x-camara.rect.x, actor.rect.y-camara.rect.y, actor.rect.w, actor.rect.h)
+
+class Camara(object): #clase camara
+
+    def __init__(self, pantalla, jugador, anchoNivel, largoNivel):
+        self.jugador = jugador
+        self.rect = pantalla.get_rect()
+        self.rect.center = self.jugador.center
+        self.mundo_rect = Rect(0, 0, anchoNivel, largoNivel)
+
+    def actualizar(self):
+      if self.jugador.centerx > self.rect.centerx + 25:
+          self.rect.centerx = self.jugador.centerx - 25
+
+      if self.jugador.centerx < self.rect.centerx - 25:
+          self.rect.centerx = self.jugador.centerx + 25
+
+      if self.jugador.centery > self.rect.centery + 25:
+          self.rect.centery = self.jugador.centery - 25
+
+      if self.jugador.centery < self.rect.centery - 25:
+          self.rect.centery = self.jugador.centery + 25
+      self.rect.clamp_ip(self.mundo_rect)
+
+    def dibujarSprites(self, pantalla, sprites):
+        for s in sprites:
+            if s.rect.colliderect(self.rect):
+                pantalla.blit(s.image, RelRect(s, self))
+
 
 if __name__ == '__main__':
     pg. init()
-    Pantalla = pg.display.set_mode([Ancho, Alto])
+    pantalla = pg.display.set_mode([Ancho, Alto])
 
     Colisionables = pg.sprite.Group()
     NoColisionables = pg.sprite.Group()
+    Bloques = pg.sprite.Group()
+
+    todos = pg.sprite.Group()
 
     Nivel = Mapa('untitledmap.json')
-    Nivel.Mapeo(Colisionables, NoColisionables)
+    Nivel.Mapeo(Colisionables, NoColisionables, Bloques)
 
+    jp= jugador("ojos.png",260,260)
+    jp.ls_block=Colisionables
+
+    ImgBoss = Recortar('Boss.png', 12, 8)
+
+    boss = Boss(ImgBoss, 0, 0)
+    boss.jp = jp
+    boss.ls_muros = Colisionables
+    boss.ls_block = Bloques
+
+    todos.add(boss)
+
+    camara = Camara(pantalla, jp.rect,Nivel.AnchoF*32,Nivel.AltoF*32)
+    todos.add(jp)
+    reloj=pg.time.Clock()
     Running = True
     while Running:
         for event in pg.event.get():
@@ -205,6 +308,29 @@ if __name__ == '__main__':
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     Running = False
+        key = pg.key.get_pressed()
 
-        Colisionables.draw(Pantalla)
-        NoColisionables.draw(Pantalla)
+        if key[pg.K_a]:
+            jp.facing=IZQUIERDA
+            jp.move(-jp.velocidad, 0)
+
+        if key[pg.K_d]:
+            jp.move(jp.velocidad, 0)
+            jp.facing=DERECHA
+
+        if key[pg.K_w]:
+            jp.move(0, -jp.velocidad)
+            jp.facing=ARRIBA
+
+        if key[pg.K_s]:
+            jp.move(0, jp.velocidad)
+            jp.facing=ABAJO
+
+        boss.update()
+        pantalla.fill(NEGRO)
+        camara.actualizar()
+        camara.dibujarSprites(pantalla, Bloques)
+        camara.dibujarSprites(pantalla, todos)
+        #camara.dibujarSprites(pantalla, NoColisionables)
+        pg.display.flip()
+        reloj.tick(60)
