@@ -6,8 +6,8 @@ from BossAgent import *
 n = 32 #32
 m = 26 #26
 
-Ancho = n*32
-Alto = m*32
+Ancho = 800
+Alto = 400
 
 
 IZQUIERDA=0
@@ -129,7 +129,7 @@ class Mapa(object):
 
         self.lstiles = self.Tiles()
 
-    def Mapeo(self, Colisionables, NoColisionables, Bloques):
+    def Mapeo(self, Colisionables, NoColisionables, Bloques, OtrasCols, Detalles):
         nf = 0
         for f in self.lyOtros2:
             ne = 0
@@ -139,7 +139,6 @@ class Mapa(object):
 
                     Col = Otros(img, ne, nf)
                     NoColisionables.add(Col)
-                    #pantalla.blit(img,[110,110])
                 ne += 32
             nf += 32
 
@@ -161,7 +160,7 @@ class Mapa(object):
                 if e != 0:
                     img = self.lstiles[e-1]
                     Col = Otros(img, ne, nf)
-                    NoColisionables.add(Col)
+                    Detalles.add(Col)
                 ne += 32
             nf += 32
 
@@ -172,7 +171,7 @@ class Mapa(object):
                 if e != 0:
                     img = self.lstiles[e-1]
                     Col = Colisionables(img, ne, nf)
-                    Bloques.add(Col)
+                    OtrasCols.add(Col)
                 ne += 32
             nf += 32
 
@@ -183,7 +182,7 @@ class Mapa(object):
                 if e != 0:
                     img = self.lstiles[e-1]
                     Col = Otros(img, ne, nf)
-                    NoColisionables.add(Col)
+                    Detalles.add(Col)
                 ne += 32
             nf += 32
 
@@ -301,11 +300,13 @@ if __name__ == '__main__':
     NoColisionables = pg.sprite.Group()
     Bloques = pg.sprite.Group()
     proyectiles = pg.sprite.Group()
+    OtrasCols = pg.sprite.Group()
+    Detalles = pg.sprite.Group()
 
     todos = pg.sprite.Group()
 
     Nivel = Mapa('untitledmap.json')
-    Nivel.Mapeo(Colisionables, NoColisionables, Bloques)
+    Nivel.Mapeo(Colisionables, NoColisionables, Bloques, OtrasCols, Detalles)
 
     Imgjp = Recortar("Pj1.png",12,8)
     jp= jugador(Imgjp, 0, 0)
@@ -358,5 +359,7 @@ if __name__ == '__main__':
         camara.dibujarSprites(pantalla, Bloques)
         camara.dibujarSprites(pantalla, todos)
         camara.dibujarSprites(pantalla, proyectiles)
+        camara.dibujarSprites(pantalla, Detalles)
+        camara.dibujarSprites(pantalla, OtrasCols)
         pg.display.flip()
         reloj.tick(60)
