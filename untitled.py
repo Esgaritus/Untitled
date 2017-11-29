@@ -300,6 +300,7 @@ if __name__ == '__main__':
     Colisionables = pg.sprite.Group()
     NoColisionables = pg.sprite.Group()
     Bloques = pg.sprite.Group()
+    proyectiles = pg.sprite.Group()
 
     todos = pg.sprite.Group()
 
@@ -316,6 +317,7 @@ if __name__ == '__main__':
     boss.jp = jp
     boss.ls_muros = Colisionables
     boss.ls_block = Bloques
+    boss.ls_proy = proyectiles
 
     todos.add(boss)
 
@@ -349,10 +351,12 @@ if __name__ == '__main__':
             jp.facing=ABAJO
 
         boss.update()
+        proyectiles.update()
         pantalla.fill(NEGRO)
         camara.actualizar()
         camara.dibujarSprites(pantalla, NoColisionables)
         camara.dibujarSprites(pantalla, Bloques)
         camara.dibujarSprites(pantalla, todos)
+        camara.dibujarSprites(pantalla, proyectiles)
         pg.display.flip()
         reloj.tick(60)
