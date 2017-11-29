@@ -35,37 +35,58 @@ class Otros(pg.sprite.Sprite):
         self.rect.y = y
 
 class jugador(pg.sprite.Sprite):
-    velocidad=4
-    ls_block=None
+	velocidad=4
+	ls_block=None
 
-    def __init__(self,imagen,x,y):
-            pg.sprite.Sprite.__init__(self)
-            self.image= self.image=pg.image.load(imagen).convert_alpha()
-            self.rect=self.image.get_rect()
-            self.rect.x=x
-            self.rect.y=y
-            self.hp = 50000
+	def __init__(self,imagen,a,b):
+			pg.sprite.Sprite.__init__(self)
+			self.m = imagen
+			self.image=self.m[a][b]
+			self.a = a
+			self.b = b
+			self.i = b
+			self.dir = a
+			self.rect=self.image.get_rect()
+			self.rect.x=100
+			self.rect.y=100
+			self.hp = 50000
+			self.band = 1
 
-    def move(self,dx,dy):
-        if dx != 0:
-            self.collide(dx, 0)
-        if dy != 0:
-            self.collide(0, dy)
-    def collide(self,dx,dy):
-        self.rect.x+=dx
-        self.rect.y+=dy
+	def move(self,dx,dy):
+		if dx != 0:
+			self.collide(dx, 0)
+		if dy != 0:
+			self.collide(0, dy)
+		self.animate(dx, dy)
 
-        ls_golpes=pg.sprite.spritecollide(self,self.ls_block,False)
-        for g in ls_golpes:
-            if dx>0:
-                self.rect.right=g.rect.left
-            if dx<0:
-                self.rect.left=g.rect.right
-            if dy>0:
-                self.rect.bottom=g.rect.top
-            if dy<0:
-                self.rect.top=g.rect.bottom
+	def collide(self,dx,dy):
+		self.rect.x += dx
+		self.rect.y += dy
 
+		# ls_golpes=pg.sprite.spritecollide(self,self.ls_block,False)
+		# for g in ls_golpes:
+		# 	if dx>0:
+		# 		self.rect.right=g.rect.left
+		# 	if dx<0:
+		# 		self.rect.left=g.rect.right
+		# 	if dy>0:
+		# 		self.rect.bottom=g.rect.top
+		# 	if dy<0:
+		# 		self.rect.top=g.rect.bottom
+
+	def animate(self, dx,dy):
+		# Animacion
+		if dx != 0 or dy != 0:
+			if self.i < self.b + 2  and self.band == 1:
+				self.i+=1
+			else:
+				self.i -= 1
+				self.band=2
+				if self.i==0:
+					self.band=1
+		else:
+			self.i = 1
+		self.image=self.m[self.i][self.dir]
 
 class Mapa(object):
     def __init__(self, archivo):
@@ -285,7 +306,8 @@ if __name__ == '__main__':
     Nivel = Mapa('untitledmap.json')
     Nivel.Mapeo(Colisionables, NoColisionables, Bloques)
 
-    jp= jugador("ojos.png",260,260)
+    Imgjp = Recortar("Pj1.png",12,8)
+    jp= jugador(Imgjp, 0, 0)
     jp.ls_block=Colisionables
 
     ImgBoss = Recortar('Boss.png', 12, 8)
@@ -329,8 +351,8 @@ if __name__ == '__main__':
         boss.update()
         pantalla.fill(NEGRO)
         camara.actualizar()
+        camara.dibujarSprites(pantalla, NoColisionables)
         camara.dibujarSprites(pantalla, Bloques)
         camara.dibujarSprites(pantalla, todos)
-        #camara.dibujarSprites(pantalla, NoColisionables)
         pg.display.flip()
         reloj.tick(60)

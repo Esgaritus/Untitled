@@ -1,20 +1,12 @@
 import random
 import pygame as pg
 
-
-tempo = 0
-last_tempo = pg.time.get_ticks()
-cd_tempo = 5000
-
-def TableDrivenBoss(bossSprt):
-    table = {((bossSprt.jp.rect.x > bossSprt.rect.x),): 'movRight'}
+def SimpleReflexAtackingBoss(bossSprt, table):
+    pass
 
 
 
-def SimpleReflexBoss(bossSprt, table): #reglas, retorna acciones
-
-    if bossSprt.collidePlayer:
-        table['attack'] = True
+def SimpleReflexBoss(bossSprt, table): # reglas, retorna acciones
 
     # Colisiones con muros
     if bossSprt.collideUp or bossSprt.collideDown or bossSprt.collideRight or bossSprt.collideLeft:
@@ -33,20 +25,32 @@ def SimpleReflexBoss(bossSprt, table): #reglas, retorna acciones
         bossSprt.last_chase = pg.time.get_ticks()
         bossSprt.chase = 0
 
-        if bossSprt.collideObjectUp or bossSprt.collideObjectDown:
-            if bossSprt.jp.rect.x > bossSprt.rect.x :
-                table['movRight'] = True
-            elif bossSprt.jp.rect.x < bossSprt.rect.x:
+        if bossSprt.collideObjectUp:
+            if bossSprt.rand == 1:
                 table['movLeft'] = True
+            else:
+                table['movRight'] = True
+        if bossSprt.collideObjectDown:
+            if bossSprt.rand == 1:
+                table['movLeft'] = True
+            else:
+                table['movRight'] = True
 
-        elif bossSprt.collideObjectLeft or bossSprt.collideObjectRight:
-            if bossSprt.jp.rect.y > bossSprt.rect.y:
-                table['movDown'] = True
-            elif bossSprt.jp.rect.y < bossSprt.rect.y:
+        if bossSprt.collideObjectLeft:
+            if bossSprt.rand == 1:
                 table['movUp'] = True
+            else:
+                table['movDown'] = True
+        if bossSprt.collideObjectRight:
+            if bossSprt.rand == 1:
+                table['movUp'] = True
+            else:
+                table['movDown'] = True
+        else:
+            pass
 
     # Si no hay colisiones, persigue al jugador a muerte
-    elif(bossSprt.chase == 1):
+    if(bossSprt.chase == 1):
     # else:
         if bossSprt.jp.rect.x > bossSprt.rect.x :
             table['movRight'] = True
@@ -56,11 +60,25 @@ def SimpleReflexBoss(bossSprt, table): #reglas, retorna acciones
             table['movDown'] = True
         if bossSprt.jp.rect.y < bossSprt.rect.y:
             table['movUp'] = True
+        else:
+            pass
+
+
+    # Ataque simple
+    if abs(bossSprt.rect.x - bossSprt.jp.rect.x) > 200 or abs(bossSprt.rect.y - bossSprt.jp.rect.y) > 200 :
+        if bossSprt.atk == 0:
+            table['long'] = True
+            bossSprt.atk = 1
+            bossSprt.last_atk = pg.time.get_ticks()
+    else:
+        table['short'] = True
+
     return table
 
 
 class Boss (pg.sprite.Sprite):
     jp=None
+    shots = None
     ls_muros = None
     ls_block = None
     def __init__(self,archivo,a,b):
@@ -75,11 +93,16 @@ class Boss (pg.sprite.Sprite):
         self.rect.x= 200
         self.rect.y= 500
 
-        self.cd_rand=20000
+        self.cd_rand=1000
         self.last_rand=pg.time.get_ticks()
         self.rand = random.randint(0,1)
 
         # Banderas y tempos
+        self.band = 1 # Para la animacion
+        self.staph = 0
+        self.cd_staph = 80
+        self.last_staph = pg.time.get_ticks()
+
         self.chase = 1
         self.cd_chase = 100
         self.last_chase = pg.time.get_ticks()
@@ -102,13 +125,20 @@ class Boss (pg.sprite.Sprite):
 
         self.collidePlayer=False
 
-        self.table = {'movUp':False, 'movDown':False, 'movRight':False, 'movLeft':False,'attack':False}
+        self.table = {'movUp':False, 'movDown':False, 'movRight':False, 'movLeft':False,'attack':False, 'short': False, 'long': False}
+
+        self.atk = 0
+        self.cd_atk = 5000
+        self.last_atk = pg.time.get_ticks()
 
     def move(self,dx,dy):
         if dx != 0:
             self.collide(dx, 0)
         if dy != 0:
             self.collide(0, dy)
+        if self.staph == 0:
+            self.staph = 1
+            self.animate(dx, dy)
 
     def collide(self,dx,dy):
         self.rect.x+=dx
@@ -141,6 +171,7 @@ class Boss (pg.sprite.Sprite):
         self.collideObjectRight=False
         self.collideObjectLeft=False
 
+
         ls_golpes = pg.sprite.spritecollide(self,self.ls_block,False)
         for g in ls_golpes:
             if dx>0:
@@ -156,6 +187,20 @@ class Boss (pg.sprite.Sprite):
                 self.rect.top = g.rect.bottom
                 self.collideObjectUp= True
 
+    def animate(self, dx,dy):
+		# Animacion
+		if dx != 0 or dy != 0:
+			if self.i < self.b + 2  and self.band == 1:
+				self.i+=1
+			else:
+				self.i -= 1
+				self.band=2
+				if self.i==0:
+					self.band=1
+		else:
+			self.i = 1
+		self.image=self.m[self.i][self.dir]
+
     def update(self):
         # if self.jp.rect.x-self.rect.x <= 32 and self.jp.rect.y-self.rect.y <= 32:
         #     self.collidePlayer = True
@@ -163,33 +208,89 @@ class Boss (pg.sprite.Sprite):
         #     self.collidePlayer = False
 
         if self.chase != 0:
-            self.table = {'movUp':False, 'movDown':False, 'movRight':False, 'movLeft':False,'attack':False}
+            self.table = {'movUp':False, 'movDown':False, 'movRight':False, 'movLeft':False,'attack':False, 'short': False, 'long': False}
+
+        # Temporizadores
         now=pg.time.get_ticks()
         if now - self.last_rand >= self.cd_rand:
             self.rand=random.randint(0,1)
             self.last_rand=now
 
-        if now - self.last_col >= self.cd_col:
-            self.col = 0
-            self.last_col = now
-
         if now - self.last_chase >= self.cd_chase:
             self.chase = 1
             self.last_chase=now
 
+        if now - self.last_atk >= self.cd_atk:
+            self.atk = 0
+            self.last_atk = now
+
+        if now - self.last_staph >= self.cd_staph:
+            self.staph = 0
+            self.last_staph = now
+
         action = SimpleReflexBoss(self, self.table)
 
         if action['movUp']:
-            self.move(0,-1)
+            self.move(0,-2)
             self.dir = 3
         if action['movDown']:
-            self.move(0,1)
+            self.move(0,2)
             self.dir = 0
         if action['movRight']:
-            self.move (1,0)
+            self.move (2,0)
             self.dir = 2
         if action['movLeft']:
-            self.move (-1,0)
+            self.move (-2,0)
             self.dir = 1
-        if action['attack']:
+        if action['short']:
             self.jp.hp -= 1
+        if action['long']:
+            pass
+            # print '*************Disparo*****************'
+
+class Disparo(pg.sprite.Sprite):
+    targets = None
+    def __init__(self, img, a, b):
+        pg.sprite.Sprite.__init__(self)
+        self.m = img
+        self.image = m[a][b]
+        self.rect = self.image.get_rect()
+        self.a = a
+        self.b = b
+        self.i = b
+        self.dir = a
+
+    def move(self,dx,dy):
+        if dx != 0:
+            self.collide(dx, 0)
+        if dy != 0:
+            self.collide(0, dy)
+        self.animate(dx, dy)
+
+    def collide(self,dx,dy):
+        self.rect.x+=dx
+        self.rect.y+=dy
+
+    def animate(self, dx,dy):
+		# Animacion
+		if dx != 0 or dy != 0:
+			if self.i < self.b + 2  and self.band == 1:
+				self.i+=1
+			else:
+				self.i -= 1
+				self.band=2
+				if self.i==0:
+					self.band=1
+		else:
+			self.i = 1
+		self.image=self.m[self.i][self.dir]
+
+    def update(self):
+        if targets.rect.x > self.rect.x :
+            self.move(3, 0)
+        if targets.rect.x < self.rect.x:
+            self.move(-3, 0)
+        if bossSprt.jp.rect.y > bossSprt.rect.y:
+            self.move(0, -3)
+        if bossSprt.jp.rect.y < bossSprt.rect.y:
+            self.move(0, 3)
