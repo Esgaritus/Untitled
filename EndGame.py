@@ -20,6 +20,7 @@ if __name__ == '__main__':
 	Light = Otros(Luz, 8*32, 0)
 
 	Efectos = pg.sprite.Group()
+	Proyectiles = pg.sprite.Group()
 
 	# Nivel 1
 	BaseC2 = pg.sprite.Group()
@@ -62,6 +63,12 @@ if __name__ == '__main__':
 
 	Pj1.ls_block = OtsColisiones
 	Pj1.ls_muros = Muros
+
+	Rhegal = Boss('Boss.png', 0, 0)
+	Rhegal.ls_muros = Muros
+	Rhegal.ls_block = OtsColisiones
+	Rhegal.ls_proy = Proyectiles
+
 
 	Personajes = pg.sprite.Group()
 	Personajes.add(Pj1)
