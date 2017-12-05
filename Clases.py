@@ -244,7 +244,6 @@ class Mapa1(object):
 		self.lsSombras1 = []
 		self.lsBaseNC = []
 		self.lsBaseC = []
-		self.lsBaseNC2 = []
 		self.lsBaseC2 = []
 
 		for i in self.base['layers']:
@@ -262,8 +261,6 @@ class Mapa1(object):
 				self.lsBaseNC = i['data']
 			if i['name'] == 'Base C':
 				self.lsBaseC = i['data']
-			if i['name'] == 'Base NC2':
-				self.lsBaseNC2 = i['data']
 			if i['name'] == 'Base C2':
 				self.lsBaseC2 = i['data']
 
@@ -276,12 +273,11 @@ class Mapa1(object):
 		self.lySombras1 = self.Separar(self.lsSombras1, self.AnchoF)
 		self.lyBaseNC = self.Separar(self.lsBaseNC, self.AnchoF)
 		self.lyBaseC = self.Separar(self.lsBaseC, self.AnchoF)
-		self.lyBaseNC2 = self.Separar(self.lsBaseNC2, self.AnchoF)
 		self.lyBaseC2 = self.Separar(self.lsBaseC2, self.AnchoF)
 
 		self.lstiles = self.Tiles()
 
-	def Mapeo(self, BaseC2, BaseNC2, BaseC, BaseNC, Sombras1, Sombras2, Sombras3, ObjetosC, DetallesNC):
+	def Mapeo(self, BaseC2, BaseC, BaseNC, Sombras1, Sombras2, Sombras3, ObjetosC, DetallesNC):
 
 		nf = 0
 		for f in self.lyDetallesNC:
@@ -361,24 +357,13 @@ class Mapa1(object):
 			nf += 32
 
 		nf = 0
-		for f in self.lyBaseNC2:
-			ne = 0
-			for e in f:
-				if e != 0:
-					img = self.lstiles[e-1]
-					Col = Otros(img, ne, nf)
-					BaseNC2.add(Col)
-				ne += 32
-			nf += 32
-
-		nf = 0
 		for f in self.lyBaseC2:
 			ne = 0
 			for e in f:
 				if e != 0:
 					img = self.lstiles[e-1]
 					Col = Colisionable(img, ne, nf)
-					BaseC2.add(Col)
+					BaseC.add(Col)
 				ne += 32
 			nf += 32
 
