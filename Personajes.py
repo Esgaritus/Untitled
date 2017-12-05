@@ -18,10 +18,15 @@ class Jugador(pg.sprite.Sprite):
 			self.rect.y=300
 			self.hp = 50000
 			self.band = 1
+			self.band2 = 1
 
 			self.staph = 0
 			self.cd_staph = 80
 			self.last_staph = pg.time.get_ticks()
+
+			self.staph2 = 0
+			self.cd_staph2 = 80
+			self.last_staph2 = pg.time.get_ticks()
 
 			self.cansado = 0
 			self.cd_cansado = 5000
@@ -74,8 +79,21 @@ class Jugador(pg.sprite.Sprite):
 			else:
 				self.i -= 1
 				self.band=2
-				if self.i==0:
+				if self.i==self.b:
 					self.band=1
 		else:
 			self.i = 1
 		self.image=self.m[self.i][self.dir]
+
+	def ataque(self, a, b):
+		if self.staph == 0:
+			self.staph = 1
+			if a < b + 2  and self.band2 == 1:
+				a += 1
+			else:
+				a -= 1
+				self.band2 = 2
+				if a == b:
+					self.band2=1
+
+			self.image = self.m[a][self.dir]

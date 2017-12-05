@@ -259,6 +259,7 @@ class Boss (pg.sprite.Sprite):
 		self.image=self.m[self.i][self.dir]
 
 	def shoot(self):
+		img = 'Sprites/fish.png'
 		pend = abs((self.rect.y - self.jp.rect.y)/(self.rect.x - self.jp.rect.x))
 		if pend > 1:
 			cantPuntos = abs(self.rect.y - self.jp.rect.y)
@@ -270,45 +271,45 @@ class Boss (pg.sprite.Sprite):
 		if self.keys[pg.K_a] and self.keys[pg.K_s]:
 			ajustex=-self.jp.velocidad*cantPuntos
 			ajustey=self.jp.velocidad*cantPuntos
-			b=Disparo('fish.png', self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+ajustey+16))
+			b=Disparo(img, self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+ajustey+16))
 			self.ls_proy.add(b)
 			return
 		if self.keys[pg.K_d] and self.keys[pg.K_s]:
 			ajustex=self.jp.velocidad*cantPuntos
 			ajustey=self.jp.velocidad*cantPuntos
-			b=Disparo('fish.png', self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+ajustey+16))
+			b=Disparo(img, self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+ajustey+16))
 			self.ls_proy.add(b)
 			return
 		if self.keys[pg.K_a] and self.keys[pg.K_w]:
 			ajustex=-self.jp.velocidad*cantPuntos
 			ajustey=-self.jp.velocidad*cantPuntos
-			b=Disparo('fish.png', self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+ajustey+16))
+			b=Disparo(img, self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+ajustey+16))
 			self.ls_proy.add(b)
 			return
 		if self.keys[pg.K_d] and self.keys[pg.K_w]:
 			ajustex=self.jp.velocidad*cantPuntos
 			ajustey=-self.jp.velocidad*cantPuntos
-			b=Disparo('fish.png', self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+ajustey+16))
+			b=Disparo(img, self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+ajustey+16))
 			self.ls_proy.add(b)
 			return
 		if self.keys[pg.K_a]:
 			ajustex=-self.jp.velocidad*cantPuntos
-			b=Disparo('fish.png', self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+16))
+			b=Disparo(img, self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+16))
 			self.ls_proy.add(b)
 			return
 		if self.keys[pg.K_d]:
 			ajustex=self.jp.velocidad*cantPuntos
-			b=Disparo('fish.png', self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+16))
+			b=Disparo(img, self.rect.x, self.rect.y, (self.jp.rect.x+ajustex+16,self.jp.rect.y+16))
 			self.ls_proy.add(b)
 			return
 		if self.keys[pg.K_w]:
 			ajustey=-self.jp.velocidad*cantPuntos
-			b=Disparo('fish.png', self.rect.x, self.rect.y, (self.jp.rect.x+16,self.jp.rect.y+ajustey+16))
+			b=Disparo(img, self.rect.x, self.rect.y, (self.jp.rect.x+16,self.jp.rect.y+ajustey+16))
 			self.ls_proy.add(b)
 			return
 		if self.keys[pg.K_s]:
 			ajustey=self.jp.velocidad*cantPuntos
-			b=Disparo('fish.png', self.rect.x, self.rect.y, (self.jp.rect.x+16,self.jp.rect.y+ajustey+16))
+			b=Disparo(img, self.rect.x, self.rect.y, (self.jp.rect.x+16,self.jp.rect.y+ajustey+16))
 			self.ls_proy.add(b)
 			return
 
