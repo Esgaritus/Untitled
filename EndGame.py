@@ -65,6 +65,7 @@ if __name__ == '__main__':
 	Sombras33 = pg.sprite.Group()
 	Sombras32 = pg.sprite.Group()
 	Sombras31 = pg.sprite.Group()
+	Rivales3 = pg.sprite.Group()
 
 	Nivel3 = Mapa3('Mapas/Mapa3.json')
 	Nivel3.Mapeo(Muros, Suelo, Detalles, OtsColisiones, Detalles2, Otros1, Otros2, Sombras34, Sombras33, Sombras32, Sombras31)
@@ -101,6 +102,9 @@ if __name__ == '__main__':
 	Pj13.ls_block = OtsColisiones
 	Pj13.ls_muros = Muros
 
+	Pj13.rect.x = 100
+	Pj13.rect.y = 600
+
 
 	for i in range(4):
 		Pollo1 = Boss(ImgPollo1, 3, 4)
@@ -114,12 +118,30 @@ if __name__ == '__main__':
 		Pollo1.ls_block = Colisiona
 		Rivales2.add(Pollo1)
 
-	Espectro = Boss(ImgEspectro, 3, 4)
+	Espectro = Boss(ImgEspectro, 6, 4)
+	Espectro.rect.x = 70*32
+	Espectro.rect.y = 30*32
+	Espectro.jp = Pj12
+	Espectro.ls_proy = Proyectiles
+	Espectro.ls_muros = Eventos2
+	Espectro.ls_block = Colisiona
+	Rivales2.add(Espectro)
+
+	Espectro2 = Boss(ImgEspectro, 3, 4)
+	Espectro2.rect.x = 70*32
+	Espectro2.rect.y = 10*32
+	Espectro2.jp = Pj12
+	Espectro2.ls_proy = Proyectiles
+	Espectro2.ls_muros = Eventos2
+	Espectro2.ls_block = Colisiona
+	Rivales2.add(Espectro2)
 
 	Rhegal = Boss(ImgRhegal, 0, 0)
 	Rhegal.ls_muros = Muros
 	Rhegal.ls_block = OtsColisiones
 	Rhegal.ls_proy = Proyectiles
+	Rhegal.jp = Pj13
+	Rivales3.add(Rhegal)
 
 
 	Personajes1 = pg.sprite.Group()
@@ -320,11 +342,20 @@ if __name__ == '__main__':
 
 		elif Band_lv3:
 			Pj = Pj13
+			Rivales3.update()
+
+			if pg.sprite.spritecollide(Pj13, Proyectiles, True):
+				Pj13.hp -= 100
+				print ('Vida restante: ', Pj13.hp)
+
+
 			camara3.actualizar()
 			camara3.dibujarSprites(Pantalla, Suelo)
 			camara3.dibujarSprites(Pantalla, Muros)
 			camara3.dibujarSprites(Pantalla, Detalles2)
 			camara3.dibujarSprites(Pantalla, Personajes3)
+			camara3.dibujarSprites(Pantalla, Proyectiles)
+			camara3.dibujarSprites(Pantalla, Rivales3)
 			camara3.dibujarSprites(Pantalla, OtsColisiones)
 			camara3.dibujarSprites(Pantalla, Sombras32)
 			camara3.dibujarSprites(Pantalla, Detalles)

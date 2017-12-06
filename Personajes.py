@@ -16,7 +16,7 @@ class Jugador(pg.sprite.Sprite):
 			self.rect=self.image.get_rect()
 			self.rect.x=200
 			self.rect.y=300
-			self.hp = 50000
+			self.hp = 5000
 			self.band = 1
 			self.band2 = 1
 

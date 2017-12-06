@@ -108,16 +108,17 @@ def SimpleReflexBoss(bossSprt, table): # reglas, retorna acciones
 	# Si no hay colisiones, persigue al jugador a muerte
 	if(bossSprt.chase == 1):
 	# else:
-		if bossSprt.jp.rect.x > bossSprt.rect.x :
-			table['movRight'] = True
-		if bossSprt.jp.rect.x < bossSprt.rect.x:
-			table['movLeft'] = True
-		if bossSprt.jp.rect.y > bossSprt.rect.y:
-			table['movDown'] = True
-		if bossSprt.jp.rect.y < bossSprt.rect.y:
-			table['movUp'] = True
-		else:
-			pass
+		if abs(bossSprt.rect.x - bossSprt.jp.rect.x) < 500 or abs(bossSprt.rect.y - bossSprt.jp.rect.y) < 500 :
+			if bossSprt.jp.rect.x > bossSprt.rect.x :
+				table['movRight'] = True
+			if bossSprt.jp.rect.x < bossSprt.rect.x:
+				table['movLeft'] = True
+			if bossSprt.jp.rect.y > bossSprt.rect.y:
+				table['movDown'] = True
+			if bossSprt.jp.rect.y < bossSprt.rect.y:
+				table['movUp'] = True
+			else:
+				pass
 
 
 	# Ataque simple
@@ -143,12 +144,13 @@ class Boss (pg.sprite.Sprite):
 		self.image=self.m[a][b]
 		self.a = a
 		self.b = b
-		self.i = b
-		self.dir = a
+		self.i = a
+		self.dir = b
 		self.rect=self.image.get_rect()
 		self.rect.x= 200
 		self.rect.y= 500
 		self.keys=pg.key.get_pressed()
+		self.vida = 2000
 
 		self.cd_rand=1000
 		self.last_rand=pg.time.get_ticks()
@@ -251,11 +253,11 @@ class Boss (pg.sprite.Sprite):
 				self.i+=1
 			else:
 				self.i -= 1
-				self.band=2
-				if self.i==0:
-					self.band=1
+				self.band = 2
+				if self.i == self.b:
+					self.band = 1
 		else:
-			self.i = 1
+			self.i = self.b + 1
 		self.image=self.m[self.i][self.dir]
 
 	def shoot(self):
