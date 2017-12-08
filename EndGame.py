@@ -15,6 +15,7 @@ Alto = 600
 
 if __name__ == '__main__':
 	pg. init()
+	pg.mixer.init()
 	Pantalla = pg.display.set_mode([Ancho, Alto])
 	Reloj = pg.time.Clock()
 	Luz = pg.image.load('Mapas/light.png').convert_alpha()
@@ -25,6 +26,8 @@ if __name__ == '__main__':
 	Rivales = pg.sprite.Group()
 	Eventos = pg.sprite.Group()
 	Eventos2 = pg.sprite.Group()
+
+	pg.mixer.music.load('Numb.mp3')
 
 	# **************************************************************************
 	# ______________________________ NIVELES ___________________________________
@@ -76,8 +79,8 @@ if __name__ == '__main__':
 	ImgPj1 = Recortar('Sprites/muneco.png', 12, 8)
 	# ImgPj2 = Recortar('Pj2.png', 12, 8)
 	# ImgPj3 = Recortar('Pj3.png', 12, 8)
-	ImgPollo1 = Recortar('Sprites/animales.png', 12, 8)
-	ImgEspectro = Recortar('Sprites/Monster.png', 12, 8)
+	ImgPollo1 = Recortar('Sprites/pollo.png', 3, 4)
+	ImgEspectro = Recortar('Sprites/fantasma.png', 3, 4)
 	ImgRhegal = Recortar('Sprites/Boss.png', 12, 8)
 
 
@@ -107,7 +110,7 @@ if __name__ == '__main__':
 
 
 	for i in range(4):
-		Pollo1 = Boss(ImgPollo1, 3, 4)
+		Pollo1 = Boss2(ImgPollo1, 0, 0)
 		posrandx = random.randint(0, 1500)
 		posrandy = random.randint(0, 1000)
 		Pollo1.rect.x = posrandx
@@ -118,7 +121,7 @@ if __name__ == '__main__':
 		Pollo1.ls_block = Colisiona
 		Rivales2.add(Pollo1)
 
-	Espectro = Boss(ImgEspectro, 6, 4)
+	Espectro = Boss2(ImgEspectro, 0, 0)
 	Espectro.rect.x = 70*32
 	Espectro.rect.y = 30*32
 	Espectro.jp = Pj12
@@ -127,7 +130,7 @@ if __name__ == '__main__':
 	Espectro.ls_block = Colisiona
 	Rivales2.add(Espectro)
 
-	Espectro2 = Boss(ImgEspectro, 3, 4)
+	Espectro2 = Boss2(ImgEspectro, 0, 0)
 	Espectro2.rect.x = 70*32
 	Espectro2.rect.y = 10*32
 	Espectro2.jp = Pj12
@@ -157,8 +160,11 @@ if __name__ == '__main__':
 	# Eventos
 	dragon = Dragon(20, 16, 2 , 1)
 	espantapajaros = Dragon(15, 14, 1, 1)
+	estatua = Dragon(15, 5, 1, 1)
+
 	Eventos.add(dragon)
 	Eventos.add(espantapajaros)
+	Eventos.add(estatua)
 
 	pasar = Dragon(74, 19, 1, 2)
 	Eventos2.add(pasar)
@@ -178,6 +184,7 @@ if __name__ == '__main__':
 	last_banderaK = pg.time.get_ticks()
 	cd = 120
 
+
 	objeto1 = 1
 	estado = 0
 	objeto2 = 0
@@ -185,6 +192,9 @@ if __name__ == '__main__':
 
 	Pause = False
 	Running = True
+	font1 = pg.font.Font('dalila.ttf',30)
+	fondotexto = pg.image.load('fondotexto.png').convert_alpha()
+
 
 	while Running:
 
@@ -195,6 +205,7 @@ if __name__ == '__main__':
 				if event.key == pg.K_ESCAPE:
 					Running = False
 
+		fuenteVida = str()
 		now = pg.time.get_ticks()
 
 		if now - Pj.last_staph >= Pj.cd_staph:
@@ -242,8 +253,17 @@ if __name__ == '__main__':
 
 		Pj.move(0,0)
 
+		if(pg.sprite.collide_rect(Pj, estatua)):
+			texto = font1.render("Derrota el espantapajaros para pasar de nivel", True, (0,0,0))
+			texto2 = font1.render("		 Presiona 'K' para atacar", True, (0,0,0))
+			textx = 10
+			texty = 300
+			Pantalla.blit(fondotexto, (0, 290))
+			Pantalla.blit(texto,[textx,texty])
+			Pantalla.blit(texto2,[textx,texty+25])
+			pg.display.flip()
 
-		if(pg.sprite.collide_rect(Pj11, espantapajaros)):
+		if(pg.sprite.collide_rect(Pj, espantapajaros)):
 			if(bandera):
 				print ("Espantapajaros Golpeado ", espantapajaros.vida)
 				espantapajaros.vida -= 10
@@ -252,6 +272,27 @@ if __name__ == '__main__':
 					objeto1 = 0
 					Espant.empty()
 					Eventos.remove(espantapajaros)
+
+			if(objeto1 == 0):
+				texto = font1.render("Acercate al dragon", True, (0,0,0))
+				Pantalla.blit(fondotexto, (0, 270))
+				Pantalla.blit(texto,[textx,texty-20])
+
+		ls_pollos = pg.sprite.spritecollide(Pj, Rivales2, False)
+
+		for m in ls_pollos:
+			ls_jp = pg.sprite.spritecollide(m, Personajes2, False)
+			for n in ls_jp:
+				Pj.hp -= 1
+
+			if(bandera):
+				print ("Pollo Golpeado ", m.vida)
+				m.vida -= 100
+				bandera = False
+				if Pollo1.vida <= 0:
+					Rivales2.remove(m)
+
+		if(pg.sprite.collide_rect(Pj, espantapajaros)):
 
 
 
@@ -269,6 +310,7 @@ if __name__ == '__main__':
 		if(pg.sprite.collide_rect(Pj11, dragon)):
 			if(objeto1==0):
 				estado = 1
+				objeto1 = 1
 
 			else:
 				if Pj11.rect.x > 0:
@@ -329,6 +371,7 @@ if __name__ == '__main__':
 			camara1.dibujarSprites(Pantalla, ObjetosC)
 			camara1.dibujarSprites(Pantalla, Espant)
 
+
 		elif Band_lv2:
 			Pj = Pj12
 			Pantalla.fill((0,0,0))
@@ -343,6 +386,7 @@ if __name__ == '__main__':
 		elif Band_lv3:
 			Pj = Pj13
 			Rivales3.update()
+			pg.mixer.music.play()
 
 			if pg.sprite.spritecollide(Pj13, Proyectiles, True):
 				Pj13.hp -= 100
@@ -364,6 +408,13 @@ if __name__ == '__main__':
 			camara3.dibujarSprites(Pantalla, Sombras34)
 			camara3.dibujarSprites(Pantalla, Sombras33)
 			camara3.dibujarSprites(Pantalla, Sombras31)
+
+		if Pj.hp <= 0:
+			Running = False
+
+		fuenteVida = str(Pj.hp)
+		letravida = font1.render(fuenteVida, 0, (255,0,0))
+		Pantalla.blit(letravida, [0, 400])
 
 		Reloj.tick(60)
 		pg.display.flip()

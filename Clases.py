@@ -244,7 +244,6 @@ class Mapa2(object):
 		for f in self.lyColisiona:
 			ne = 0
 			for e in f:
-				# print ("tamaño lst {} tamaño e {}".format(len(self.lstiles), e))
 				if e != 0:
 					img = self.lstiles[e-1]
 					Col = Otros(img, ne, nf)
